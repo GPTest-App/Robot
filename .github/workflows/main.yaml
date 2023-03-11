@@ -37,10 +37,10 @@ jobs:
           git add .
           git commit -m "GPTest unit test"
 
-      - name: Push changes
+      - name: Push changes to GitHub
         uses: ad-m/github-push-action@master
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.ADMIN_ACCESS }}
           branch: gptest-${{ github.head_ref }}
 
       - name: Create Pull Request
