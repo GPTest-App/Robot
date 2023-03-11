@@ -12,7 +12,7 @@ const repo = github.context.repo.repo;
 const availableLanguages = ['js', 'jsx', 'ts', 'tsx', 'py']
 
 
-const createUnitTestIssue = async (filePath, unitTest, fileExtension) => {
+const createUnitTestIssue = async (unitTest, filePath, fileExtension) => {
     const { data: issue } = await octokit.rest.issues.create({
         owner,
         repo,
@@ -39,7 +39,7 @@ function main(){
             }).then((response) => {
                 const fileContent = Buffer.from(response.data.content??'', 'base64').toString();
                 GetUnitTest(fileContent).then((response) => {
-                    createUnitTestIssue(filePath, response.data.unit_test, fileExtension);
+                    createUnitTestIssue(response.data.unit_test, filePath, fileExtension);
                 })
                 .catch((error) => {
                     console.log("Error: " + error);
