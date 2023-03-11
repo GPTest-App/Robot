@@ -6,17 +6,18 @@ const { UnitTestIssueBodyTemplate } = require("./utils/IssueBodyTemplate");
 const githubApiKey = core.getInput('github_token');
 const octokit = github.getOctokit(githubApiKey);
 
-const payload = github.context.payload;
 const owner = github.context.repo.owner;
 const repo = github.context.repo.repo;
 
+const availableLanguages = ['js', 'jsx', 'ts', 'tsx', 'py']
+
 
 const createUnitTestIssue = async (filePath, unitTest) => {
-    const fileExtension = filePath.slice(-1)[0];
+    const fileExtension = filePath.split('.').slice(-1)[0];
     const { data: issue } = await octokit.rest.issues.create({
         owner,
         repo,
-        title: `[GPTest} Unit test for ${filePath}`,
+        title: `[GPTest] Unit test for ${filePath}`,
         body: UnitTestIssueBodyTemplate(unitTest, filePath, fileExtension)
     });
     return issue;
@@ -26,7 +27,10 @@ function main(){
     const modifiedFilesPaths = core.getInput('changed_files').split(',');
     try {
         for (let i = 0; i < modifiedFilesPaths.length; i++) {
-            github.context.payload.pull_request.number
+            const fileExtension = filePath.split('.').slice(-1)[0];
+            if (!availableLanguages.includes(fileExtension)) {
+                continue;
+            }
             octokit.rest.repos.getContent({
                 owner,
                 repo,
