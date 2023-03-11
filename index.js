@@ -33,14 +33,15 @@ function main(){
                 ref: github.context.ref
             }).then((response) => {
                 const fileContent = Buffer.from(response.data.content??'', 'base64').toString();
-                GetUnitTest(fileContent).then((response) => {
+                // GetUnitTest(fileContent).then((response) => {
                     console.log(`Unit test for ${modifiedFilesPaths[i]}`, response.data.unit_test);
-                    fs.writeFileSync(`${modifiedFilesPaths[i]}_test.js`, response.data.unit_test);
-                })
-                .catch((error) => {
-                    console.log("Error: " + error);
-                    throw new Error(error);
-                });
+                    // fs.writeFileSync(`${modifiedFilesPaths[i]}_test.js`, response.data.unit_test);
+                    fs.writeFileSync(`${modifiedFilesPaths[i]}_test.js`, 'conteudo do arquivo de teste');
+                // })
+                // .catch((error) => {
+                //     console.log("Error: " + error);
+                //     throw new Error(error);
+                // });
             });
         }
     } catch (error) {
