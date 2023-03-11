@@ -8,8 +8,6 @@ jobs:
     name: Create unit test
     steps:
       - uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.ADMIN_ACCESS }}
 
       - name: Get changed files
         id: changed-files
@@ -31,26 +29,3 @@ jobs:
           github_token: ${{ secrets.MY_GITHUB_TOKEN }} # Get the Github Token from repository secrets
           changed_files: ${{ steps.changed-files.outputs.all_changed_files }}
 
-      - name: Commit changes to branch
-        run: |
-          git config --global user.email "robot@gptest.com"
-          git config --global user.name "GPTest Robot"
-          git checkout -B gptest-${{ github.head_ref }}
-          git add .
-          git commit -m "GPTest unit test"
-          git push -f origin gptest-${{ github.head_ref }}
-
-      # - name: Push changes to GitHub
-      #   uses: ad-m/github-push-action@master
-      #   with:
-      #     github_token: ${{ secrets.MY_GITHUB_TOKEN }}
-      #     branch: gptest-${{ github.head_ref }}
-
-      # - name: Create Pull Request
-      #   uses: peter-evans/create-pull-request@v4
-      #   with:
-      #     token: ${{ secrets.ADMIN_ACCESS }}
-      #     branch: gptest-${{ github.head_ref }}
-      #     commit-message: "Update code"
-      #     title: "[GPTest] Unit Test Creation"
-      #     body: "Unit test for the modified functions of your ."
