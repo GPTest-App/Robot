@@ -1,22 +1,23 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
 const { GetUnitTest } = require("./services/GPTestClient");
-const fs = require('fs');
+const { UnitTestIssueBodyTemplate } = require("./utils/IssueBodyTemplate");
 
 const githubApiKey = core.getInput('github_token');
 const octokit = github.getOctokit(githubApiKey);
 
-const payload = github.context.payload;
 const owner = github.context.repo.owner;
 const repo = github.context.repo.repo;
 
+const availableLanguages = ['js', 'jsx', 'ts', 'tsx', 'py']
 
-const createIssue = async (title, body) => {
+
+const createUnitTestIssue = async (unitTest, filePath, fileExtension) => {
     const { data: issue } = await octokit.rest.issues.create({
         owner,
         repo,
-        title,
-        body
+        title: `[GPTest] Unit test for ${filePath}`,
+        body: UnitTestIssueBodyTemplate(unitTest, filePath, fileExtension)
     });
     return issue;
 };
@@ -25,23 +26,25 @@ function main(){
     const modifiedFilesPaths = core.getInput('changed_files').split(',');
     try {
         for (let i = 0; i < modifiedFilesPaths.length; i++) {
-            github.context.payload.pull_request.number
+            const filePath = modifiedFilesPaths[i];
+            const fileExtension = filePath.split('.').slice(-1)[0];
+            if (!availableLanguages.includes(fileExtension)) {
+                continue;
+            }
             octokit.rest.repos.getContent({
                 owner,
                 repo,
-                path: modifiedFilesPaths[i],
+                path: filePath,
                 ref: github.context.ref
             }).then((response) => {
                 const fileContent = Buffer.from(response.data.content??'', 'base64').toString();
-                // GetUnitTest(fileContent).then((response) => {
-                    console.log(`Unit test for ${modifiedFilesPaths[i]}`, response.data.unit_test);
-                    // fs.writeFileSync(`${modifiedFilesPaths[i]}_test.js`, response.data.unit_test);
-                    fs.writeFileSync(`${modifiedFilesPaths[i]}_test.js`, 'conteudo do arquivo de teste');
-                // })
-                // .catch((error) => {
-                //     console.log("Error: " + error);
-                //     throw new Error(error);
-                // });
+                GetUnitTest(fileContent).then((response) => {
+                    createUnitTestIssue(response.data.unit_test, filePath, fileExtension);
+                })
+                .catch((error) => {
+                    console.log("Error: " + error);
+                    throw new Error(error);
+                });
             });
         }
     } catch (error) {
