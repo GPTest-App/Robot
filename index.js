@@ -1,6 +1,7 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
 const { GetUnitTest } = require("./services/GPTestClient");
+const fs = require('fs');
 
 const githubApiKey = core.getInput('github_token');
 const octokit = github.getOctokit(githubApiKey);
@@ -33,7 +34,8 @@ function main(){
             }).then((response) => {
                 const fileContent = Buffer.from(response.data.content??'', 'base64').toString();
                 GetUnitTest(fileContent).then((response) => {
-                    createIssue(`Unit test for ${modifiedFilesPaths[i]}`, response.data.unit_test);
+                    console.log(`Unit test for ${modifiedFilesPaths[i]}`, response.data.unit_test);
+                    fs.writeFileSync(`${modifiedFilesPaths[i]}_test.js`, response.data.unit_test);
                 })
                 .catch((error) => {
                     console.log("Error: " + error);
