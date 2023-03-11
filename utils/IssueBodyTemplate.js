@@ -1,7 +1,7 @@
-function UnitTestIssueBodyTemplate(unitTest, filePath, language = "js") {
+function UnitTestIssueBodyTemplate(unitTest, filePath, fileExtension = "js") {
     return `## Ta-da! Here's the unit test for ${filePath} 
     
-    \`\`\`${language}
+    \`\`\`${fileExtension}
     ${unitTest}
     \`\`\``;
 }
