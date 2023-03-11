@@ -9,7 +9,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          ssh-key: ${{ secrets.ADMIN_ACCESS }}
+          token: ${{ secrets.ADMIN_ACCESS }}
 
       - name: Get changed files
         id: changed-files
