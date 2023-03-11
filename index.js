@@ -12,8 +12,7 @@ const repo = github.context.repo.repo;
 const availableLanguages = ['js', 'jsx', 'ts', 'tsx', 'py']
 
 
-const createUnitTestIssue = async (filePath, unitTest) => {
-    const fileExtension = filePath.split('.').slice(-1)[0];
+const createUnitTestIssue = async (filePath, unitTest, fileExtension) => {
     const { data: issue } = await octokit.rest.issues.create({
         owner,
         repo,
@@ -27,6 +26,7 @@ function main(){
     const modifiedFilesPaths = core.getInput('changed_files').split(',');
     try {
         for (let i = 0; i < modifiedFilesPaths.length; i++) {
+            const filePath = modifiedFilesPaths[i];
             const fileExtension = filePath.split('.').slice(-1)[0];
             if (!availableLanguages.includes(fileExtension)) {
                 continue;
@@ -34,12 +34,12 @@ function main(){
             octokit.rest.repos.getContent({
                 owner,
                 repo,
-                path: modifiedFilesPaths[i],
+                path: filePath,
                 ref: github.context.ref
             }).then((response) => {
                 const fileContent = Buffer.from(response.data.content??'', 'base64').toString();
                 GetUnitTest(fileContent).then((response) => {
-                    createUnitTestIssue(modifiedFilesPaths[i], response.data.unit_test);
+                    createUnitTestIssue(filePath, response.data.unit_test, fileExtension);
                 })
                 .catch((error) => {
                     console.log("Error: " + error);
