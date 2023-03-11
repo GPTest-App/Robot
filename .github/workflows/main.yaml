@@ -33,16 +33,16 @@ jobs:
         run: |
           git config --global user.email "robot@gptest.com"
           git config --global user.name "GPTest Robot"
-          git checkout ${{ github.head_ref }}
+          git checkout -B gptest-${{ github.head_ref }}
           git add .
           git commit -m "GPTest unit test"
-          git push origin gptest
+          git push origin gptest-${{ github.head_ref }}
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          branch: gptest
+          branch: gptest-${{ github.head_ref }}
           commit-message: "Update code"
           title: "[GPTest] Unit Test Creation"
           body: "Unit test for the modified functions of your ."
